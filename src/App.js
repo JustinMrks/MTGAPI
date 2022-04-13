@@ -1,23 +1,35 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import CardForm from './components/CardForm';
+import CardList from './components/CardList';
+import axios from 'axios';
 import './App.css';
 
 function App() {
+  const [error, setError] = useState('');
+  const [isFetchingData, setIsFetchingData] = useState(false);
+  const [cards, setCards] = useState([]);
+  const findCards = () => {
+    setIsFetchingData(true);
+    axios
+      .get('https://api.magicthegathering.io/v1/cards')
+      .then((res) => {
+        console.log(`cards baby ${res.data.cards}`);
+        setCards(res.data.cards);
+        setIsFetchingData(false);
+        console.log(cards);
+      })
+      .catch((err) => {
+        console.log(`yikes: ${err}`);
+        setError(err);
+        setIsFetchingData(false);
+      });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Magic The Gathering Cards</h1>
+      <CardForm getCards={findCards} fetching={isFetchingData} />
+      <CardList cards={cards} error={error} />
     </div>
   );
 }
